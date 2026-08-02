@@ -11,3 +11,25 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// Enums Define
+enum Role {
+  USER
+  MODERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum AdvertisementStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+}
+
+enum ModerationDecision {
+  APPROVED
+  REJECTED
+}
