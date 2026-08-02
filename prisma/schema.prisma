@@ -76,3 +76,24 @@ model Session {
 
   @@index([userId, sessionToken])
 }
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  parentId String?
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryHierarchy")
+
+  createdAt DateTime @default(now())
+
+  @@index([parentId])
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+}
