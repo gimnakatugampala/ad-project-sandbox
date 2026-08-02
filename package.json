@@ -1,0 +1,21 @@
+{
+  "name": "ad-project-sandbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gimnakatugampala/ad-project-sandbox.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gimnakatugampala/ad-project-sandbox/issues"
+  },
+  "homepage": "https://github.com/gimnakatugampala/ad-project-sandbox#readme"
+}
