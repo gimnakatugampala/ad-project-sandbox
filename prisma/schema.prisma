@@ -80,10 +80,11 @@ model Session {
 }
 
 model Category {
-  id       String  @id @default(cuid())
-  name     String
-  slug     String  @unique
-  parentId String?
+  id        String  @id @default(cuid())
+  name      String
+  slug      String  @unique
+  parentId  String?
+  isDeleted Boolean @default(false)
 
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[] @relation("CategoryHierarchy")
@@ -100,6 +101,7 @@ model Location {
   name      String
   slug      String   @unique
   createdAt DateTime @default(now())
+  isDeleted Boolean  @default(false)
 
   advertisements Advertisement[]
 }
@@ -112,6 +114,7 @@ model Advertisement {
   userId      String
   categoryId  String
   locationId  String
+  isDeleted   Boolean @default(false)
 
   status AdvertisementStatus @default(PENDING)
 
