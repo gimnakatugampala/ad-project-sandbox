@@ -34,7 +34,7 @@ export async function requireUser(){
     const user = await getCurrentUser()
 
     if(!user){
-        redirect('/api/auth/signin')
+        redirect('/login')
     }
 
     if (user.status !== UserStatus.ACTIVE) {
