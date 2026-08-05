@@ -56,7 +56,7 @@ export async function createAdvertisement(
         }),
         prisma.location.findUnique({
             where :{
-                id: data.categoryId
+                id: data.locationId
             },
             select:{
                 id:true
