@@ -145,6 +145,7 @@ export async function rejectAdvertisement(
 
   revalidatePath("/moderator");
   revalidatePath("/my-ads");
+  revalidatePath(`/ads/${advertisementId}`);
 
    return {
     fieldErrors: {},

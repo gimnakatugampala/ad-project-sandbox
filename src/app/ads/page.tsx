@@ -1,5 +1,6 @@
 import { AdvertisementStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function AdsPage() {
 
@@ -63,6 +64,13 @@ const advertisements = await prisma.advertisement.findMany({
       <p className="mt-4 font-semibold">
         LKR {advertisement.price.toString()}
       </p>
+
+      <Link
+      href={`/ads/${advertisement.id}`}
+      className="mt-5 inline-block font-medium underline"
+    >
+      View details
+    </Link>
     </article>
   ))}
 </div>

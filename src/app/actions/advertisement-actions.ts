@@ -112,4 +112,5 @@ export async function createAdvertisement(
 
         revalidatePath("/my-ads");
     redirect("/my-ads");
+    
 }
