@@ -1,8 +1,11 @@
 "use client";
+import { createAdvertisement } from "@/app/actions/advertisement-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CreateAdvertisementState } from "@/types/advertisement-action";
+import { useActionState } from "react";
 
 type CategoryOption = {
   id: string;
@@ -28,9 +31,23 @@ export function CreateAdForm({
   categories,
   locations,
 }: CreateAdFormProps) {
+
+    const initialState: CreateAdvertisementState = {
+        fieldErrors: {},
+        message: "",
+        };
+
+    const [state, formAction, isPending] = useActionState(
+    createAdvertisement,
+    initialState
+    );
+
     return (
   // return the form
-  <form className="space-y-6">
+<form
+  action={formAction}
+  className="w-full max-w-2xl space-y-6"
+>
     <Label htmlFor="title">Title</Label>
     <Input
     id="title"
@@ -40,6 +57,11 @@ export function CreateAdForm({
     maxLength={200}
     required
     />
+    {state.fieldErrors && state.fieldErrors.title?.[0] && (
+    <p className="text-sm text-destructive">
+        {state.fieldErrors.title[0]}
+    </p>
+    )}
 
  <Label htmlFor="title">Description</Label>
     <Textarea
@@ -53,6 +75,13 @@ export function CreateAdForm({
     </Textarea>
 
 
+        {state.fieldErrors && state.fieldErrors.description?.[0] && (
+        <p className="text-sm text-destructive">
+            {state.fieldErrors.description[0]}
+        </p>
+        )}
+
+
     <Label htmlFor="price">Price</Label>
      <Input
     id="price"
@@ -62,6 +91,12 @@ export function CreateAdForm({
     step="0.01"
     required
     />
+
+    {state.fieldErrors && state.fieldErrors.price?.[0] && (
+  <p className="text-sm text-destructive">
+    {state.fieldErrors.price[0]}
+  </p>
+)}
 
    <div className="space-y-2">
   <Label htmlFor="categoryId">Category</Label>
@@ -89,6 +124,12 @@ export function CreateAdForm({
 
 
   </select>
+
+  {state.fieldErrors && state.fieldErrors.categoryId?.[0] && (
+  <p className="text-sm text-destructive">
+    {state.fieldErrors.categoryId[0]}
+  </p>
+)}
 </div>
 
 <div className="space-y-2">
@@ -111,11 +152,33 @@ export function CreateAdForm({
       </option>
     ))}
   </select>
+
+{state.fieldErrors && state.fieldErrors.locationId?.[0] && (
+  <p className="text-sm text-destructive">
+    {state.fieldErrors.locationId[0]}
+  </p>
+)}
+
 </div>
 
-<Button type="submit" disabled className="w-full">
-  Submit advertisement
+<Button
+  type="submit"
+  disabled={isPending}
+  className="w-full"
+>
+  {isPending
+    ? "Submitting..."
+    : "Submit advertisement"}
 </Button>
+
+{state.message && (
+  <p
+    role="alert"
+    className="text-sm text-destructive"
+  >
+    {state.message}
+  </p>
+)}
 
   </form>
   )
