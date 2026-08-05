@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { approveAdvertisement } from "@/app/actions/moderation-actions";
 import { Button } from "@/components/ui/button";
 
+import { RejectAdvertisementForm } from "@/components/moderation/reject-advertisement-form";
+
 
 export default async function ModeratorPage(){
     const moderator = await requireModerator();
@@ -56,7 +58,8 @@ export default async function ModeratorPage(){
                 <p>{advertisement.user.name ?? advertisement.user.email}</p>
                 <p>{advertisement.price.toString()}</p>
 
-                 <div className="mt-5">
+       
+                        <div className="mt-5 grid gap-4 md:grid-cols-2">
                         <form
                             action={approveAdvertisement.bind(
                             null,
@@ -67,6 +70,10 @@ export default async function ModeratorPage(){
                             Approve
                             </Button>
                         </form>
+
+                        <RejectAdvertisementForm
+                            advertisementId={advertisement.id}
+                        />
                         </div>
             </article>
         ))}
