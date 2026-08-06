@@ -95,9 +95,6 @@ const uploadDirectory = path.join(
   "ads"
 );
 
-await mkdir(uploadDirectory, {
-  recursive: true,
-});
 
 const savedImages: {
   absolutePath: string;
@@ -170,6 +167,11 @@ const savedImages: {
        }
 
        try {
+
+        await mkdir(uploadDirectory, {
+  recursive: true,
+});
+
 
                for (const image of images) {
   const extension = IMAGE_EXTENSIONS[image.type];

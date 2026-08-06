@@ -301,12 +301,13 @@ const [categories, locations, advertisements] =
 
 
       {advertisements.length === 0 ?  (
-             <p>
-              {keyword
-                ? `No advertisements found for "${keyword}".`
-                : !hasInvalidPriceRange ? "No advertisements match the selected filters."  :  "No active advertisements are currently available."}
-
-            </p>
+           <p>
+  {hasInvalidPriceRange
+    ? "Please correct the price range."
+    : keyword
+      ? `No advertisements found for "${keyword}".`
+      : "No advertisements match the selected filters."}
+</p>
             ) : (
 
               <>
