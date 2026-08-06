@@ -293,6 +293,13 @@ const [categories, locations, advertisements] =
             </form>
 
 
+              {hasInvalidPriceRange && (
+          <p role="alert" className="text-sm text-destructive">
+            Minimum price cannot be greater than maximum price.
+          </p>
+        )}
+
+
       {advertisements.length === 0 ?  (
              <p>
               {keyword
@@ -303,17 +310,12 @@ const [categories, locations, advertisements] =
             ) : (
 
               <>
-              {hasInvalidPriceRange && (
-          <p role="alert" className="text-sm text-destructive">
-            Minimum price cannot be greater than maximum price.
-          </p>
-        )}
+            
 
               
 
            
-                          
-                        
+              
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {advertisements.map((advertisement) => (
                 <article

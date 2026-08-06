@@ -131,6 +131,7 @@ const savedImages: {
                 parentId: {
                 not: null,
                 },
+                 isDeleted: false,
             },
              select: {
                 id: true,
@@ -138,7 +139,8 @@ const savedImages: {
         }),
         prisma.location.findUnique({
             where :{
-                id: data.locationId
+                id: data.locationId,
+                 isDeleted: false
             },
             select:{
                 id:true
