@@ -27,6 +27,9 @@ export default async function AdvertisementDetailsPage({
       id,
       status: AdvertisementStatus.ACTIVE,
       isDeleted: false,
+        user: {
+          status: UserStatus.ACTIVE,
+        },
     },
 
     select: {

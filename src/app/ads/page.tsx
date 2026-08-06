@@ -1,4 +1,4 @@
-import { AdvertisementStatus } from "@/generated/prisma/enums";
+import { AdvertisementStatus, UserStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,6 +58,9 @@ const maxPrice =
     where: {
       status: AdvertisementStatus.ACTIVE,
       isDeleted: false,
+        user: {
+          status: UserStatus.ACTIVE,
+        },
       ...(keyword
       ? {
           OR: [
@@ -129,6 +132,7 @@ const maxPrice =
           name: true,
         },
       },
+  
     },
 
     orderBy: {
