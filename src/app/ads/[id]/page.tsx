@@ -73,6 +73,15 @@ if (!advertisement) {
 
   return (
   <main className="mx-auto max-w-4xl p-6">
+    
+    <Link
+  href={`/login?callbackUrl=${encodeURIComponent(
+    `/ads/${advertisement.id}`
+  )}`}
+>
+  Sign in to contact seller
+</Link>
+
     <article className="rounded-xl border p-6">
       <div className="mb-4">
         <p className="text-sm text-muted-foreground">
