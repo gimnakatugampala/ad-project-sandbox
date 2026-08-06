@@ -79,13 +79,20 @@ export async function approveAdvertisement(
                if (notifications.user.email) {
         after(async () => {
           try {
-            await sendModerationEmail({
+         const emailResult =    await sendModerationEmail({
               to: notifications.user.email!,
               sellerName: notifications.user.name,
               advertisementTitle: notifications.title,
               decision: "APPROVED",
               note: null,
             });
+
+            console.log(
+            "APPROVAL EMAIL SENT:",
+            emailResult.messageId
+          );
+
+
           } catch (error) {
             console.error(
               "APPROVAL EMAIL ERROR:",
@@ -201,13 +208,18 @@ export async function rejectAdvertisement(
  if (notifications.user.email) {
   after(async () => {
     try {
-      await sendModerationEmail({
+   const emailResult =   await sendModerationEmail({
         to: notifications.user.email!,
         sellerName: notifications.user.name,
         advertisementTitle: notifications.title,
         decision: "REJECTED",
         note: rejectionNote,
       });
+
+      console.log(
+  "REJECTION EMAIL SENT:",
+  emailResult.messageId
+);
     } catch (error) {
       console.error(
         "REJECTION EMAIL ERROR:",
