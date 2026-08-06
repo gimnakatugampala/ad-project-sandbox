@@ -9,6 +9,19 @@ import type { CreateAdvertisementState } from "@/types/advertisement-action";
 import z from "zod";
 import { AdvertisementStatus } from "@/generated/prisma/enums";
 
+import { mkdir, rm, writeFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import path from "node:path";
+
+const MAX_AD_IMAGES = 5;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+const IMAGE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+};
+
 export async function createAdvertisement(
    _previousState: CreateAdvertisementState,
   formData: FormData
@@ -22,6 +35,75 @@ export async function createAdvertisement(
         categoryId: formData.get("categoryId"),
         locationId: formData.get("locationId"),
     });
+
+    const images = formData
+    .getAll("images")
+    .filter(
+        (value): value is File =>
+        value instanceof File && value.size > 0
+    );
+
+if (
+  images.length === 0 ||
+  images.length > MAX_AD_IMAGES
+) {
+  return {
+    fieldErrors: {
+      images: [
+        "Please upload between 1 and 5 images.",
+      ],
+    },
+    message: "Please correct the highlighted fields.",
+  };
+}
+
+const invalidTypeImage = images.find(
+  (image) => !IMAGE_EXTENSIONS[image.type]
+);
+
+if (invalidTypeImage) {
+  return {
+    fieldErrors: {
+      images: [
+        "Only JPG, PNG and WebP images are allowed.",
+      ],
+    },
+    message: "Please correct the highlighted fields.",
+  };
+}
+
+const oversizedImage = images.find(
+  (image) => image.size > MAX_IMAGE_SIZE
+);
+
+if (oversizedImage) {
+  return {
+    fieldErrors: {
+      images: [
+        "Each image must be 5 MB or smaller.",
+      ],
+    },
+    message: "Please correct the highlighted fields.",
+  };
+}
+
+
+const uploadDirectory = path.join(
+  process.cwd(),
+  "public",
+  "uploads",
+  "ads"
+);
+
+await mkdir(uploadDirectory, {
+  recursive: true,
+});
+
+const savedImages: {
+  absolutePath: string;
+  publicPath: string;
+}[] = [];
+
 
 
     if(!validationResult.success){
@@ -87,6 +169,31 @@ export async function createAdvertisement(
 
        try {
 
+               for (const image of images) {
+  const extension = IMAGE_EXTENSIONS[image.type];
+  const filename = `${randomUUID()}${extension}`;
+
+  const absolutePath = path.join(
+    uploadDirectory,
+    filename
+  );
+
+        const publicPath = `/uploads/ads/${filename}`;
+
+        const bytes = await image.arrayBuffer();
+
+        await writeFile(
+            absolutePath,
+            Buffer.from(bytes)
+        );
+
+        savedImages.push({
+            absolutePath,
+            publicPath,
+        });
+        }
+
+
         await prisma.advertisement.create({
             data :{
                 title: data.title,
@@ -96,10 +203,28 @@ export async function createAdvertisement(
                 locationId: data.locationId,
                 userId: user.id,
                  status: AdvertisementStatus.PENDING,
+                 
+                    images: {
+                    create: savedImages.map(
+                        (image, index) => ({
+                        filePath: image.publicPath,
+                        isPrimary: index === 0,
+                        })
+                    ),
+                    },
             }
         })
 
+ 
+
        }catch(error){
+          await Promise.allSettled(
+    savedImages.map((image) =>
+      rm(image.absolutePath, {
+        force: true,
+      })
+    )
+  );
     console.error("CREATE ADVERTISEMENT ERROR:", error);
 
         return {

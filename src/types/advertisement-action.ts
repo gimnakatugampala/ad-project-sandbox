@@ -6,6 +6,7 @@ export type CreateAdvertisementState = {
     price?: string[];
     categoryId?: string[];
     locationId?: string[];
+     images?: string[];
   };
   message?: string;
 };

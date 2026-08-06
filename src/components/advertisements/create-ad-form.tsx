@@ -161,6 +161,32 @@ export function CreateAdForm({
 
 </div>
 
+<div className="space-y-2">
+  <Label htmlFor="images">
+    Advertisement images
+  </Label>
+
+  <Input
+    id="images"
+    name="images"
+    type="file"
+    accept="image/jpeg,image/png,image/webp"
+    multiple
+    required
+  />
+
+  <p className="text-sm text-muted-foreground">
+    Upload between 1 and 5 JPG, PNG or WebP images.
+    Maximum size: 5 MB per image.
+  </p>
+
+  {state.fieldErrors?.images?.[0] && (
+    <p className="text-sm text-destructive">
+      {state.fieldErrors.images[0]}
+    </p>
+  )}
+</div>
+
 <Button
   type="submit"
   disabled={isPending}
