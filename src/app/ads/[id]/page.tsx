@@ -2,6 +2,10 @@ import { notFound } from "next/navigation";
 
 import { AdvertisementStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+
+import { getCurrentUser } from "@/lib/authorization";
+import { UserStatus } from "@/generated/prisma/enums";
 
 import Image from "next/image";
 
@@ -15,9 +19,10 @@ export default async function AdvertisementDetailsPage({
   params,
 }: AdvertisementDetailsPageProps) {
   const { id } = await params;
+  const currentUser = await getCurrentUser();
+  const canViewSellerContact = currentUser?.status === UserStatus.ACTIVE;
 
-  const advertisement =
-  await prisma.advertisement.findFirst({
+  const advertisement = await prisma.advertisement.findFirst({
     where: {
       id,
       status: AdvertisementStatus.ACTIVE,
@@ -132,7 +137,7 @@ if (!advertisement) {
         </h2>
 
         <p className="mt-2 text-muted-foreground">
-          {advertisement.user.name ?? "Registered seller"}
+          {advertisement.user.name ? (canViewSellerContact ?  advertisement.user.name : "*".repeat(advertisement.user.name.length) ):  "Registered seller"}
         </p>
       </section>
 
