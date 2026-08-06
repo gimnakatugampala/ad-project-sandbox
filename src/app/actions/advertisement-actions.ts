@@ -239,3 +239,35 @@ const savedImages: {
     redirect("/my-ads");
     
 }
+
+export async function deleteAdvertisement(
+  advertisementId: string,
+  _formData: FormData
+): Promise<void> {
+  const user = await requireUser();
+
+  if (!advertisementId?.trim()) {
+    throw new Error("A valid advertisement ID is required.");
+  }
+
+  const result = await prisma.advertisement.updateMany({
+    where: {
+      id: advertisementId,
+      userId: user.id,
+      isDeleted: false,
+    },
+    data: {
+      isDeleted: true,
+    },
+  });
+
+  if (result.count !== 1) {
+    throw new Error(
+      "The advertisement was not found or does not belong to you."
+    );
+  }
+
+  revalidatePath("/my-ads");
+  revalidatePath("/ads");
+  revalidatePath(`/ads/${advertisementId}`);
+}

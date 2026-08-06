@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
 
-
+import { deleteAdvertisement } from "@/app/actions/advertisement-actions";
 
 
 export default async function MyAdsPage() {
@@ -14,6 +14,7 @@ export default async function MyAdsPage() {
   const advertisements = await prisma.advertisement.findMany({
     where: {
       userId: user.id,
+        isDeleted: false,
     },
     select: {
       id: true,
@@ -114,6 +115,17 @@ export default async function MyAdsPage() {
 <p className="mt-3 line-clamp-2 text-sm">
   {advertisement.description}
 </p>
+<form
+  action={deleteAdvertisement.bind(
+    null,
+    advertisement.id
+  )}
+  className="mt-4"
+>
+  <Button type="submit" variant="destructive">
+    Remove advertisement
+  </Button>
+</form>
     </article>
   ))}
 </div>
