@@ -5,7 +5,10 @@ import { requireUser } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
 
 import { deleteAdvertisement } from "@/app/actions/advertisement-actions";
-
+import {
+  AdvertisementStatus,
+  ModerationDecision,
+} from "@/generated/prisma/enums";
 
 export default async function MyAdsPage() {
   const user = await requireUser();
@@ -14,7 +17,7 @@ export default async function MyAdsPage() {
   const advertisements = await prisma.advertisement.findMany({
     where: {
       userId: user.id,
-        isDeleted: false,
+      isDeleted: false,
     },
     select: {
       id: true,
@@ -40,10 +43,24 @@ export default async function MyAdsPage() {
         },
         take: 1,
       },
+      moderations: {
+      where: {
+        decision: ModerationDecision.REJECTED,
+      },
+      select: {
+        note: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 1,
+},
     },
     orderBy: {
       createdAt: "desc",
     },
+    
   });
 
   return (
@@ -106,6 +123,34 @@ export default async function MyAdsPage() {
     <span className="rounded-full border px-2 py-1 text-xs font-medium">
   {advertisement.status}
 </span>
+
+{advertisement.status ===
+  AdvertisementStatus.REJECTED && (
+  <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+    <p className="font-medium text-destructive">
+      Advertisement rejected
+    </p>
+
+    <p className="mt-2 text-sm">
+      {advertisement.moderations[0]?.note ??
+        "No rejection reason was provided."}
+    </p>
+  </div>
+)}
+
+{advertisement.status ===
+  AdvertisementStatus.PENDING && (
+  <p className="mt-3 text-sm text-muted-foreground">
+    This advertisement is waiting for moderator review.
+  </p>
+)}
+
+{advertisement.status ===
+  AdvertisementStatus.ACTIVE && (
+  <p className="mt-3 text-sm text-muted-foreground">
+    This advertisement is publicly visible.
+  </p>
+)}
 
 <p className="text-xs text-muted-foreground">
   Submitted{" "}
