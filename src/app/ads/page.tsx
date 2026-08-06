@@ -2,6 +2,7 @@ import { AdvertisementStatus, UserStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 type AdsPageProps = {
   searchParams: Promise<{
@@ -194,12 +195,29 @@ const [categories, locations, advertisements] =
     advertisementsQuery,
   ]);
 
-  return (
-    <main>
-      <h1>Advertisements</h1>
+  const controlClassName =
+  "h-11 w-full rounded-lg border bg-background px-3 text-sm shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring";
 
-      <form method="GET" action="/ads">
+  return (
+  <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <div className="mb-8">
+    <h1 className="text-3xl font-bold tracking-tight">
+      Browse advertisements
+    </h1>
+
+    <p className="mt-2 text-muted-foreground">
+      Search listings by keyword, category, location and price.
+    </p>
+  </div>
+
+      <form
+  method="GET"
+  action="/ads"
+  className="mb-8 rounded-2xl border bg-card p-5 shadow-sm"
+>
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <input
+              className={controlClassName}
                 type="search"
                 name="q"
                 defaultValue={keyword}
@@ -207,6 +225,7 @@ const [categories, locations, advertisements] =
               />
 
                <select
+               className={controlClassName}
               id="category"
               name="category"
               defaultValue={categoryId}
@@ -233,6 +252,7 @@ const [categories, locations, advertisements] =
             </select>
 
             <select
+            className={controlClassName}
             id="location"
             name="location"
             defaultValue={locationId}
@@ -252,11 +272,12 @@ const [categories, locations, advertisements] =
           </select>
 
           <div>
-        <label htmlFor="minPrice">
+        {/* <label htmlFor="minPrice">
           Minimum price
-        </label>
+        </label> */}
 
         <input
+        className={controlClassName}
           id="minPrice"
           name="minPrice"
           type="number"
@@ -268,11 +289,12 @@ const [categories, locations, advertisements] =
       </div>
 
       <div>
-        <label htmlFor="maxPrice">
+        {/* <label htmlFor="maxPrice">
           Maximum price
-        </label>
+        </label> */}
 
         <input
+        className={controlClassName}
           id="maxPrice"
           name="maxPrice"
           type="number"
@@ -283,13 +305,22 @@ const [categories, locations, advertisements] =
         />
       </div>
 
-              <button type="submit">
-                Search
-              </button>
+    <div className="flex flex-wrap gap-3 sm:col-span-2 lg:col-span-5">
+              <Button type="submit">
+                Search advertisements
+              </Button>
 
+                <Button asChild variant="outline">
               <Link href="/ads">
-              Clear filters
-            </Link>
+                Clear filters
+              </Link>
+            </Button>
+
+            </div>
+
+
+
+            </div>
             </form>
 
 
@@ -309,19 +340,13 @@ const [categories, locations, advertisements] =
       : "No advertisements match the selected filters."}
 </p>
             ) : (
-
               <>
-            
-
-              
-
-           
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {advertisements.map((advertisement) => (
                 <article
                   key={advertisement.id}
-                  className="rounded-lg border p-5"
+                 className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md p-5"
                 >
 
                 {advertisement.images[0] ? (
@@ -342,7 +367,7 @@ const [categories, locations, advertisements] =
                   </div>
                 )}
 
-                  <h2 className="text-xl font-semibold">
+                  <h2 className="text-lg font-semibold leading-tight">
                     {advertisement.title}
                   </h2>
 
@@ -352,20 +377,21 @@ const [categories, locations, advertisements] =
                     {advertisement.location.name}
                   </p>
 
-                  <p className="mt-4">
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
                     {advertisement.description}
                   </p>
 
-                  <p className="mt-4 font-semibold">
+                  <p className="mt-4 text-xl font-bold">
                     LKR {advertisement.price.toString()}
                   </p>
 
-                  <Link
-                  href={`/ads/${advertisement.id}`}
-                  className="mt-5 inline-block font-medium underline"
-                >
+                 <Button asChild className="mt-5 w-full">
+                <Link href={`/ads/${advertisement.id}`}>
                   View details
                 </Link>
+              </Button>
+
+              
                 </article>
               ))}
             </div>
