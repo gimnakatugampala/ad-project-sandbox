@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { AdvertisementStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 
+import Image from "next/image";
+
 type AdvertisementDetailsPageProps = {
   params: Promise<{
     id: string;
@@ -28,6 +30,17 @@ export default async function AdvertisementDetailsPage({
       description: true,
       price: true,
       createdAt: true,
+      images: {
+  select: {
+    id: true,
+    filePath: true,
+    isPrimary: true,
+    createdAt: true,
+  },
+  orderBy: {
+    createdAt: "asc",
+  },
+},
 
       category: {
         select: {
@@ -71,6 +84,37 @@ if (!advertisement) {
       <p className="text-2xl font-semibold">
         LKR {advertisement.price.toString()}
       </p>
+
+      {advertisement.images.length > 0 ? (
+  <section className="mt-6">
+    <h2 className="sr-only">
+      Advertisement images
+    </h2>
+
+    <div className="grid gap-4 sm:grid-cols-2">
+      {advertisement.images.map((image) => (
+        <div
+          key={image.id}
+          className="relative aspect-[4/3] overflow-hidden rounded-lg border"
+        >
+          <Image
+            src={image.filePath}
+            alt={advertisement.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, 50vw"
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+) : (
+  <div className="mt-6 flex aspect-video items-center justify-center rounded-lg bg-muted">
+    <p className="text-muted-foreground">
+      No images available
+    </p>
+  </div>
+)}
 
       <section className="mt-8">
         <h2 className="text-lg font-semibold">

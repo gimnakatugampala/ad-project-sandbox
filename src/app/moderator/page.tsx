@@ -3,7 +3,7 @@ import { requireModerator } from "@/lib/authorization";
 import { prisma } from "@/lib/prisma";
 import { approveAdvertisement } from "@/app/actions/moderation-actions";
 import { Button } from "@/components/ui/button";
-
+import Image from "next/image";
 import { RejectAdvertisementForm } from "@/components/moderation/reject-advertisement-form";
 
 
@@ -28,6 +28,16 @@ export default async function ModeratorPage(){
             name: true,
             email: true,
             },
+        },
+        images: {
+        select: {
+            id: true,
+            filePath: true,
+            isPrimary: true,
+        },
+        orderBy: {
+            createdAt: "asc",
+        },
         },
         category: {
             select: {
@@ -57,6 +67,29 @@ export default async function ModeratorPage(){
                 <p>{advertisement.title ?? advertisement.title}</p>
                 <p>{advertisement.user.name ?? advertisement.user.email}</p>
                 <p>{advertisement.price.toString()}</p>
+
+                {advertisement.images.length > 0 ? (
+  <div className="my-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+    {advertisement.images.map((image) => (
+      <div
+        key={image.id}
+        className="relative aspect-square overflow-hidden rounded-lg border"
+      >
+        <Image
+          src={image.filePath}
+          alt={advertisement.title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 50vw, 25vw"
+        />
+      </div>
+    ))}
+  </div>
+) : (
+  <p className="my-4 text-sm text-muted-foreground">
+    No images were uploaded.
+  </p>
+)}
 
        
                         <div className="mt-5 grid gap-4 md:grid-cols-2">

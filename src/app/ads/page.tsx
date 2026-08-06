@@ -1,6 +1,7 @@
 import { AdvertisementStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 
 type AdsPageProps = {
   searchParams: Promise<{
@@ -107,6 +108,15 @@ const maxPrice =
       description: true,
       price: true,
       createdAt: true,
+      images: {
+      where: {
+        isPrimary: true,
+      },
+      select: {
+        filePath: true,
+      },
+      take: 1,
+    },
 
       category: {
         select: {
@@ -184,24 +194,7 @@ const [categories, locations, advertisements] =
     <main>
       <h1>Advertisements</h1>
 
-
-      {advertisements.length === 0 ?  (
-             <p>
-              {keyword
-                ? `No advertisements found for "${keyword}".`
-                : !hasInvalidPriceRange ? "No advertisements match the selected filters."  :  "No active advertisements are currently available."}
-
-            </p>
-            ) : (
-
-              <>
-              {hasInvalidPriceRange && (
-          <p role="alert" className="text-sm text-destructive">
-            Minimum price cannot be greater than maximum price.
-          </p>
-        )}
-
-              <form method="GET" action="/ads">
+      <form method="GET" action="/ads">
               <input
                 type="search"
                 name="q"
@@ -295,6 +288,25 @@ const [categories, locations, advertisements] =
             </Link>
             </form>
 
+
+      {advertisements.length === 0 ?  (
+             <p>
+              {keyword
+                ? `No advertisements found for "${keyword}".`
+                : !hasInvalidPriceRange ? "No advertisements match the selected filters."  :  "No active advertisements are currently available."}
+
+            </p>
+            ) : (
+
+              <>
+              {hasInvalidPriceRange && (
+          <p role="alert" className="text-sm text-destructive">
+            Minimum price cannot be greater than maximum price.
+          </p>
+        )}
+
+              
+
            
                           
                         
@@ -304,6 +316,25 @@ const [categories, locations, advertisements] =
                   key={advertisement.id}
                   className="rounded-lg border p-5"
                 >
+
+                {advertisement.images[0] ? (
+                  <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-lg">
+                    <Image
+                      src={advertisement.images[0].filePath}
+                      alt={advertisement.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
+                ) : (
+                  <div className="mb-4 flex aspect-[4/3] items-center justify-center rounded-lg bg-muted">
+                    <p className="text-sm text-muted-foreground">
+                      No image available
+                    </p>
+                  </div>
+                )}
+
                   <h2 className="text-xl font-semibold">
                     {advertisement.title}
                   </h2>
