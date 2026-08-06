@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { sendModerationEmail } from "@/lib/email/moderation-email";
 
 import {
   AdvertisementStatus,
@@ -25,7 +27,7 @@ export async function approveAdvertisement(
 
         try {
 
-            await prisma.$transaction(async(tx) => {
+           const notifications =  await prisma.$transaction(async(tx) => {
 
                   const updateResult = await tx.advertisement.updateMany({
                         where: {
@@ -54,7 +56,49 @@ export async function approveAdvertisement(
                     }
                 })
 
+                
+      return tx.advertisement.findUniqueOrThrow({
+        where: {
+          id: advertisementId,
+        },
+        select: {
+          title: true,
+
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
             })
+
+
+               if (notifications.user.email) {
+        after(async () => {
+          try {
+            await sendModerationEmail({
+              to: notifications.user.email!,
+              sellerName: notifications.user.name,
+              advertisementTitle: notifications.title,
+              decision: "APPROVED",
+              note: null,
+            });
+          } catch (error) {
+            console.error(
+              "APPROVAL EMAIL ERROR:",
+              error
+            );
+          }
+        });
+      } else {
+        console.warn(
+          "Approval email skipped because the seller has no email address."
+        );
+      }
+
             
         } catch (error) {
             console.error("APPROVE ADVERTISEMENT ERROR:", error);
@@ -83,9 +127,12 @@ export async function rejectAdvertisement(
   }
 
 
-  const validationResult = rejectAdvertisementSchema.safeParse({
-    note: formData.get("note"),
-  });
+      const validationResult = rejectAdvertisementSchema.safeParse({
+        note: formData.get("note"),
+      });
+
+      const rejectionNote = validationResult.data?.note;
+
 
 
     if (!validationResult.success) {
@@ -103,7 +150,7 @@ export async function rejectAdvertisement(
 
 
    try {
-    await prisma.$transaction(async (tx) => {
+    const notifications = await prisma.$transaction(async (tx) => {
       const updateResult =
         await tx.advertisement.updateMany({
           where: {
@@ -130,7 +177,49 @@ export async function rejectAdvertisement(
           note: validationResult.data.note,
         },
       });
+
+
+      return tx.advertisement.findUniqueOrThrow({
+        where: {
+          id: advertisementId,
+        },
+        select: {
+          title: true,
+
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+
     });
+
+ if (notifications.user.email) {
+  after(async () => {
+    try {
+      await sendModerationEmail({
+        to: notifications.user.email!,
+        sellerName: notifications.user.name,
+        advertisementTitle: notifications.title,
+        decision: "REJECTED",
+        note: rejectionNote,
+      });
+    } catch (error) {
+      console.error(
+        "REJECTION EMAIL ERROR:",
+        error
+      );
+    }
+  });
+} else {
+  console.warn(
+    "Rejection email skipped because the seller has no email address."
+  );
+}
 
 
   } catch (error) {
@@ -146,6 +235,7 @@ export async function rejectAdvertisement(
   revalidatePath("/moderator");
   revalidatePath("/my-ads");
   revalidatePath(`/ads/${advertisementId}`);
+  revalidatePath("/ads");
 
    return {
     fieldErrors: {},
