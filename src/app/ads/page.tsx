@@ -5,6 +5,8 @@ import Link from "next/link";
 type AdsPageProps = {
   searchParams: Promise<{
     q?: string | string[];
+    category?: string | string[];
+    location?: string | string[];
   }>;
 };
 
@@ -14,61 +16,135 @@ export default async function AdsPage( {searchParams} : AdsPageProps ) {
 
   const keyword = typeof params.q === "string" ? params.q.trim() : "";
 
-const advertisements = await prisma.advertisement.findMany({
-  relationLoadStrategy: "join",
-  where: {
-    status: AdvertisementStatus.ACTIVE,
-    isDeleted: false,
-     ...(keyword
-    ? {
-        OR: [
-          {
-            title: {
-              contains: keyword,
-              mode: "insensitive",
-            },
-          },
-          {
-            description: {
-              contains: keyword,
-              mode: "insensitive",
-            },
-          },
-        ],
-      }
-    : {}),
-  },
-  select: {
-    id: true,
-    title: true,
-    description: true,
-    price: true,
-    createdAt: true,
+  const categoryId = typeof params.category === "string" ? params.category : "";
 
-    category: {
-      select: {
-        name: true,
+  const locationId = typeof params.location === "string" ? params.location : "";
+
+  const advertisementsQuery = await prisma.advertisement.findMany({
+    relationLoadStrategy: "join",
+    where: {
+      status: AdvertisementStatus.ACTIVE,
+      isDeleted: false,
+      ...(keyword
+      ? {
+          OR: [
+            {
+              title: {
+                contains: keyword,
+                mode: "insensitive",
+              },
+            },
+            {
+              description: {
+                contains: keyword,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : {}),
+        ...(categoryId
+      ? {
+          categoryId,
+        }
+      : {}),
+
+    ...(locationId
+      ? {
+          locationId,
+        }
+      : {}),
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      price: true,
+      createdAt: true,
+
+      category: {
+        select: {
+          name: true,
+        },
+      },
+
+      location: {
+        select: {
+          name: true,
+        },
       },
     },
 
-    location: {
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+
+const categoryQuery = prisma.category.findMany({
+  where: {
+    parentId: null,
+    isDeleted: false,
+  },
+
+  select: {
+    id: true,
+    name: true,
+
+    children: {
+      where: {
+        isDeleted: false,
+      },
+
       select: {
+        id: true,
         name: true,
+      },
+
+      orderBy: {
+        name: "asc",
       },
     },
   },
 
   orderBy: {
-    createdAt: "desc",
+    name: "asc",
   },
 });
+
+const locationQuery = prisma.location.findMany({
+  where: {
+    isDeleted: false,
+  },
+
+  select: {
+    id: true,
+    name: true,
+  },
+
+  orderBy: {
+    name: "asc",
+  },
+});
+
+const [categories, locations, advertisements] =
+  await Promise.all([
+    categoryQuery,
+    locationQuery,
+    advertisementsQuery,
+  ]);
 
   return (
     <main>
       <h1>Advertisements</h1>
 
+
       {advertisements.length === 0 ?  (
-            <p>No active advertisements are currently available.</p>
+             <p>
+              {keyword
+                ? `No advertisements found for "${keyword}".`
+                : "No active advertisements are currently available."}
+            </p>
             ) : (
 
               <>
@@ -80,10 +156,61 @@ const advertisements = await prisma.advertisement.findMany({
                 placeholder="Search advertisements"
               />
 
+               <select
+              id="category"
+              name="category"
+              defaultValue={categoryId}
+            >
+              <option value="">
+                All categories
+              </option>
+
+              {categories.map((parent) => (
+                <optgroup
+                  key={parent.id}
+                  label={parent.name}
+                >
+                  {parent.children.map((child) => (
+                    <option
+                      key={child.id}
+                      value={child.id}
+                    >
+                      {child.name}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+
+            <select
+            id="location"
+            name="location"
+            defaultValue={locationId}
+          >
+            <option value="">
+              All locations
+            </option>
+
+            {locations.map((location) => (
+              <option
+                key={location.id}
+                value={location.id}
+              >
+                {location.name}
+              </option>
+            ))}
+          </select>
+
               <button type="submit">
                 Search
               </button>
+
+              <Link href="/ads">
+              Clear filters
+            </Link>
             </form>
+
+           
                           
                         
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

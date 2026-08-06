@@ -29,7 +29,7 @@ if(process.env.NODE_ENV == 'development'){
 async function main() {
 
 const vehicles = await prisma.category.upsert({
-    where: {slug:'where'},
+    where: {slug:'vehicles'},
     update: {name: "Vehicles",parentId:null},
     create: {
         name: "Vehicles",
