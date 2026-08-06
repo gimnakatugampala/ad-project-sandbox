@@ -7,6 +7,8 @@ type AdsPageProps = {
     q?: string | string[];
     category?: string | string[];
     location?: string | string[];
+    minPrice?: string | string[];
+    maxPrice?: string | string[];
   }>;
 };
 
@@ -20,7 +22,37 @@ export default async function AdsPage( {searchParams} : AdsPageProps ) {
 
   const locationId = typeof params.location === "string" ? params.location : "";
 
-  const advertisementsQuery = await prisma.advertisement.findMany({
+  const minPriceInput = typeof params.minPrice === "string" ? params.minPrice.trim(): "";
+
+  const maxPriceInput = typeof params.maxPrice === "string"  ? params.maxPrice.trim() : "";
+
+  const parsedMinPrice = minPriceInput === "" ? undefined : Number(minPriceInput);
+
+  const parsedMaxPrice = maxPriceInput === "" ? undefined : Number(maxPriceInput);
+
+  const minPrice =
+  parsedMinPrice !== undefined &&
+  Number.isFinite(parsedMinPrice) &&
+  parsedMinPrice >= 0
+    ? parsedMinPrice
+    : undefined;
+
+const maxPrice =
+  parsedMaxPrice !== undefined &&
+  Number.isFinite(parsedMaxPrice) &&
+  parsedMaxPrice >= 0
+    ? parsedMaxPrice
+    : undefined;
+
+
+  const hasInvalidPriceRange =
+  minPrice !== undefined &&
+  maxPrice !== undefined &&
+  minPrice > maxPrice;
+
+  const advertisementsQuery = hasInvalidPriceRange
+  ? []
+  :  await prisma.advertisement.findMany({
     relationLoadStrategy: "join",
     where: {
       status: AdvertisementStatus.ACTIVE,
@@ -54,6 +86,20 @@ export default async function AdsPage( {searchParams} : AdsPageProps ) {
           locationId,
         }
       : {}),
+      ...(minPrice !== undefined ||
+      maxPrice !== undefined
+      ? {
+      price: {
+        ...(minPrice !== undefined
+          ? { gte: minPrice }
+          : {}),
+
+        ...(maxPrice !== undefined
+          ? { lte: maxPrice }
+          : {}),
+      },
+    }
+  : {}),
     },
     select: {
       id: true,
@@ -143,11 +189,18 @@ const [categories, locations, advertisements] =
              <p>
               {keyword
                 ? `No advertisements found for "${keyword}".`
-                : "No active advertisements are currently available."}
+                : !hasInvalidPriceRange ? "No advertisements match the selected filters."  :  "No active advertisements are currently available."}
+
             </p>
             ) : (
 
               <>
+              {hasInvalidPriceRange && (
+          <p role="alert" className="text-sm text-destructive">
+            Minimum price cannot be greater than maximum price.
+          </p>
+        )}
+
               <form method="GET" action="/ads">
               <input
                 type="search"
@@ -200,6 +253,38 @@ const [categories, locations, advertisements] =
               </option>
             ))}
           </select>
+
+          <div>
+        <label htmlFor="minPrice">
+          Minimum price
+        </label>
+
+        <input
+          id="minPrice"
+          name="minPrice"
+          type="number"
+          min="0"
+          step="0.01"
+          defaultValue={minPriceInput}
+          placeholder="Minimum price"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="maxPrice">
+          Maximum price
+        </label>
+
+        <input
+          id="maxPrice"
+          name="maxPrice"
+          type="number"
+          min="0"
+          step="0.01"
+          defaultValue={maxPriceInput}
+          placeholder="Maximum price"
+        />
+      </div>
 
               <button type="submit">
                 Search
