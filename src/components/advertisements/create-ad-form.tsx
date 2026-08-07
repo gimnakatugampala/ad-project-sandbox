@@ -46,9 +46,24 @@ export function CreateAdForm({
   // return the form
 <form
   action={formAction}
-  className="w-full max-w-2xl space-y-6"
+  className="space-y-8 rounded-2xl border bg-card p-5 shadow-sm sm:p-8"
 >
-    <Label htmlFor="title">Title</Label>
+  <div>
+  <h2 className="text-xl font-semibold">
+    Advertisement details
+  </h2>
+
+  <p className="mt-1 text-sm text-muted-foreground">
+    Fields marked with an asterisk are required.
+  </p>
+</div>
+<div className="border-t" />
+
+
+  <Label htmlFor="title">
+    Title <span aria-hidden="true">*</span>
+  </Label>
+
     <Input
     id="title"
     name="title"
@@ -63,7 +78,7 @@ export function CreateAdForm({
     </p>
     )}
 
- <Label htmlFor="title">Description</Label>
+ <Label htmlFor="title">Description <span aria-hidden="true">*</span></Label>
     <Textarea
     id="description"
     name="description"
@@ -81,16 +96,27 @@ export function CreateAdForm({
         </p>
         )}
 
+<div className="space-y-2">
+  <Label htmlFor="price">
+    Price <span aria-hidden="true">*</span>
+  </Label>
 
-    <Label htmlFor="price">Price</Label>
-     <Input
-    id="price"
-    name="price"
-    type="number"
-    min="0.01"
-    step="0.01"
-    required
+  <div className="flex">
+    <span className="flex items-center rounded-l-md border border-r-0 bg-muted px-3 text-sm text-muted-foreground">
+      LKR
+    </span>
+
+    <Input
+      id="price"
+      name="price"
+      type="number"
+      min="0.01"
+      step="0.01"
+      required
+      placeholder="0.00"
+      className="rounded-l-none"
     />
+  </div>
 
     {state.fieldErrors && state.fieldErrors.price?.[0] && (
   <p className="text-sm text-destructive">
@@ -98,15 +124,18 @@ export function CreateAdForm({
   </p>
 )}
 
+</div>
+
+<div className="grid gap-6 sm:grid-cols-2">
    <div className="space-y-2">
-  <Label htmlFor="categoryId">Category</Label>
+  <Label htmlFor="categoryId">Category <span aria-hidden="true">*</span></Label>
 
   <select
     id="categoryId"
     name="categoryId"
     defaultValue=""
     required
-    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+   className="h-10 w-full rounded-md border bg-background px-3 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
   >
     <option value="" disabled>
       Select a category
@@ -133,14 +162,14 @@ export function CreateAdForm({
 </div>
 
 <div className="space-y-2">
-  <Label htmlFor="locationId">Location</Label>
+  <Label htmlFor="locationId">Location <span aria-hidden="true">*</span></Label>
 
   <select
     id="locationId"
     name="locationId"
     defaultValue=""
     required
-    className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+    className="h-10 w-full rounded-md border bg-background px-3 text-sm shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
   >
     <option value="" disabled>
       Select a location
@@ -160,10 +189,11 @@ export function CreateAdForm({
 )}
 
 </div>
+</div>
 
 <div className="space-y-2">
   <Label htmlFor="images">
-    Advertisement images
+    Advertisement images 
   </Label>
 
   <Input
@@ -185,6 +215,17 @@ export function CreateAdForm({
       {state.fieldErrors.images[0]}
     </p>
   )}
+</div>
+
+<div className="rounded-xl border bg-muted/40 p-4">
+  <p className="text-sm font-medium">
+    What happens after submission?
+  </p>
+
+  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+    Your advertisement will be submitted for moderator review.
+    It will become publicly visible only after approval.
+  </p>
 </div>
 
 <Button
