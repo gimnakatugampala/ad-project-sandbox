@@ -10,17 +10,19 @@ import { ArrowUpRightIcon } from "lucide-react"
 
 
 
-const session = await auth();
 
-const isActive =
-  session?.user.status === UserStatus.ACTIVE;
 
-const isModerator =
-  isActive &&
-  session?.user.role === Role.MODERATOR;
 
 export default async function SiteHeader() {
+    const session = await auth();
 
+    const isActive =
+session?.user.status === UserStatus.ACTIVE;
+
+const isModerator =
+isActive &&
+session?.user.role === Role.MODERATOR;
+    
     return (
         <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
             <div className="mx-auto flex min-h-16 w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
