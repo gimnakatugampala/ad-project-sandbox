@@ -5,6 +5,10 @@ import {
   Role,
   UserStatus,
 } from "@/generated/prisma/enums";
+import { Badge } from "@/components/ui/badge"
+import { ArrowUpRightIcon } from "lucide-react"
+
+
 
 const session = await auth();
 
@@ -27,24 +31,51 @@ export default async function SiteHeader() {
                 Bliq
                 </Link>
 
+                {session ? session?.user && (
                 <nav className="flex flex-wrap items-center gap-4 text-sm font-medium">
+                          <Badge variant="secondary">{session.user.name}</Badge>
+
+                          {isModerator && (
+                            <div className="flex items-start gap-2">
+                            <Button variant="outline">Moderate Ads</Button>
+                            <Button size="icon" aria-label="Submit" variant="outline">
+                            <Link href="/moderator">
+                            <ArrowUpRightIcon />
+                            </Link>
+                            </Button>
+                        </div>
+                          )}
+
+                           
+
                     <Button asChild size="sm">
                     <Link href="/ads/new">Post an Ad</Link>
                     </Button>
 
-                    <form
-                    action={async () => {
-                        "use server";
-                        await signOut({
-                        redirectTo: "/ads",
-                        });
-                    }}
-                    >
-                    <Button type="submit" variant="outline" size="sm">
-                        Sign out
-                    </Button>
-                    </form>
+                        <form
+                        action={async () => {
+                            "use server";
+                            await signOut({
+                            redirectTo: "/login",
+                            });
+                        }}
+                        >
+                        <Button type="submit" variant="outline" size="sm">
+                            Sign out
+                        </Button>
+                        </form>
                 </nav>
+
+                ) : (
+                    <nav className="flex flex-wrap items-center gap-4 text-sm font-medium">
+                <Button asChild size="sm">
+                    <Link href="/login">Create Account / Login</Link>
+                    </Button>
+
+                    </nav>
+                )}
+
+               
             </div>
         </header>
     )
