@@ -23,7 +23,7 @@ export default async function LoginPage({
   const callbackUrl =
     requestedCallback.startsWith("/") && !requestedCallback.startsWith("//")
       ? requestedCallback
-      : "/account";
+      : "/my-ads";
 
   if (session?.user) {
     redirect(callbackUrl);
