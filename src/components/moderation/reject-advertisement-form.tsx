@@ -35,14 +35,20 @@ export function RejectAdvertisementForm({
           Rejection reason
         </Label>
 
-        <Textarea
-          id={`note-${advertisementId}`}
-          name="note"
-          placeholder="Explain why this advertisement is being rejected."
-          minLength={5}
-          maxLength={500}
-          required
-        />
+       <Textarea
+      id={`note-${advertisementId}`}
+      name="note"
+      placeholder="Explain the exact reason for rejection so the seller can correct the advertisement."
+      minLength={5}
+      maxLength={500}
+      required
+      rows={5}
+      className="resize-y bg-background"
+    />
+    <p className="text-xs leading-5 text-muted-foreground">
+    This explanation will be shown to the seller and included in
+    their rejection email.
+  </p>
 
         {state.fieldErrors.note?.[0] && (
           <p className="text-sm text-destructive">
@@ -57,13 +63,16 @@ export function RejectAdvertisementForm({
         </p>
       )}
 
-      <Button
-        type="submit"
-        variant="destructive"
-        disabled={isPending}
-      >
-        {isPending ? "Rejecting..." : "Reject"}
-      </Button>
+     <Button
+    type="submit"
+    variant="destructive"
+    disabled={isPending}
+    className="w-full"
+  >
+    {isPending
+      ? "Rejecting..."
+      : "Reject advertisement"}
+  </Button>
     </form>
   );
 }
